@@ -10,6 +10,4 @@ public interface RecipeEntityMapper {
     Recipe entityToDomain(RecipeEntity recipeEntity);
 
     RecipeEntity domainToEntity(Recipe recipe);
-
-
 }

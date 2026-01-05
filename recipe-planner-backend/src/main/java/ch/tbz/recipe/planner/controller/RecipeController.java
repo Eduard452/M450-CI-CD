@@ -31,14 +31,14 @@ public class RecipeController {
         return new ResponseEntity<>(service.getRecipes(), HttpStatus.OK);
     }
 
-    @GetMapping("/api/recipes/recipe/{recipeId}")
+    @GetMapping("/api/recipes/{recipeId}")
     public ResponseEntity<Recipe> getRecipe(@PathVariable UUID recipeId) {
         return new ResponseEntity<>(service.getRecipeById(recipeId), HttpStatus.OK);
     }
 
     @PostMapping(value = "/api/recipes")
     public ResponseEntity<Recipe> addRecipe(@RequestBody Recipe recipe) {
-        return new ResponseEntity<>(service.addRecipe(recipe), HttpStatus.OK);
+        return new ResponseEntity<>(service.addRecipe(recipe), HttpStatus.CREATED);
     }
 
 }

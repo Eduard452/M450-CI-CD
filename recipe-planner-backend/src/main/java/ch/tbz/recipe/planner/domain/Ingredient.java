@@ -16,4 +16,5 @@ public class Ingredient {
     private String comment;
     private Unit unit;
     private int amount;
+
 }

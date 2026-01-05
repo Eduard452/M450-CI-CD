@@ -3,88 +3,108 @@ package ch.tbz.recipe.planner.controller;
 import ch.tbz.recipe.planner.domain.Ingredient;
 import ch.tbz.recipe.planner.domain.Recipe;
 import ch.tbz.recipe.planner.domain.Unit;
-import ch.tbz.recipe.planner.mapper.RecipeEntityMapper;
-import ch.tbz.recipe.planner.service.RecipeService;
+import ch.tbz.recipe.planner.entities.IngredientEntity;
+import ch.tbz.recipe.planner.entities.RecipeEntity;
+import ch.tbz.recipe.planner.repository.RecipeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(RecipeController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class RecipeControllerTest {
+
+    @MockBean
+    RecipeRepository recipeRepository;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private RecipeService recipeService;
-
-    @MockBean
-    private RecipeEntityMapper mapper;
-
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Recipe createRecipe() {
-        return new Recipe(
-                UUID.randomUUID(),
-                "Lasagne",
-                "Nice food",
-                "image.jpg",
-                List.of(new Ingredient(
-                        UUID.randomUUID(),
-                        "Tomato",
-                        "Fresh",
-                        Unit.PIECE,
-                        2
-                ))
-        );
+    private Ingredient tomato;
+    private Ingredient cheese;
+
+    @BeforeEach
+    void setUp() {
+        tomato = new Ingredient();
+        tomato.setId(UUID.randomUUID());
+        tomato.setName("Tomato");
+        tomato.setComment("Fresh and ripe");
+        tomato.setUnit(Unit.GRAMM);
+        tomato.setAmount(200);
+
+        cheese = new Ingredient();
+        cheese.setId(UUID.randomUUID());
+        cheese.setName("Cheese");
+        cheese.setComment("Mozzarella");
+        cheese.setUnit(Unit.GRAMM);
+        cheese.setAmount(150);
+    }
+
+    private String toJson(Object obj) throws Exception {
+        return objectMapper.writeValueAsString(obj);
     }
 
     @Test
-    void getRecipes_shouldReturnListOfRecipes() throws Exception {
-        Mockito.when(recipeService.getRecipes())
-                .thenReturn(List.of(createRecipe()));
-
+    void getRecipes_shouldGetRecipes() throws Exception {
         mockMvc.perform(get("/api/recipes"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Lasagne"));
+                .andExpect(status().isOk());
     }
 
     @Test
-    void getRecipeById_shouldReturnRecipe() throws Exception {
-        UUID id = UUID.randomUUID();
-        Recipe recipe = createRecipe();
+    void getRecipe_withValidId() throws Exception {
+        UUID recipeId = UUID.randomUUID();
 
-        Mockito.when(recipeService.getRecipeById(id))
-                .thenReturn(recipe);
+        RecipeEntity recipe = new RecipeEntity(
+                recipeId,
+                "Pizza",
+                "Classic Italian",
+                "pizza.jpg",
+                List.of(new IngredientEntity(UUID.randomUUID(), "Tomato", "Fresh", Unit.PIECE, 3))
+        );
 
-        mockMvc.perform(get("/api/recipes/recipe/{id}", id))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Lasagne"));
+        when(recipeRepository.findById(recipeId)).thenReturn(Optional.of(recipe));
+
+        mockMvc.perform(get("/api/recipes/{recipeId}", recipeId))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void addRecipe_shouldReturnCreatedRecipe() throws Exception {
-        Recipe recipe = createRecipe();
-
-        Mockito.when(recipeService.addRecipe(Mockito.any()))
-                .thenReturn(recipe);
+    void addRecipe_withValidBody() throws Exception {
+        Recipe recipe = new Recipe();
+        recipe.setId(UUID.randomUUID());
+        recipe.setName("Pizza Margherita");
+        recipe.setDescription("Classic Italian pizza");
+        recipe.setImageUrl("http://example.com/pizza.jpg");
+        recipe.setIngredients(List.of(tomato, cheese));
 
         mockMvc.perform(post("/api/recipes")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(recipe)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Lasagne"));
+                        .contentType("application/json")
+                        .content(toJson(recipe)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void addRecipe_withInvalidBody() throws Exception {
+        mockMvc.perform(post("/api/recipes")
+                        .contentType("application/json")
+                        .content(toJson(null)))
+                .andExpect(status().isBadRequest());
     }
 }

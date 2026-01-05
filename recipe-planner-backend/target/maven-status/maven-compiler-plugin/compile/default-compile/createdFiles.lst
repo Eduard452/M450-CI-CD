@@ -1,0 +1,14 @@
+ch\tbz\recipe\planner\mapper\IngredientEntityMapper.class
+ch\tbz\recipe\planner\mapper\CommonMapperConfig.class
+ch\tbz\recipe\planner\domain\Ingredient.class
+ch\tbz\recipe\planner\mapper\IngredientEntityMapperImpl.class
+ch\tbz\recipe\planner\mapper\RecipeEntityMapper.class
+ch\tbz\recipe\planner\RecipePlannerApplication.class
+ch\tbz\recipe\planner\domain\Recipe.class
+ch\tbz\recipe\planner\entities\RecipeEntity.class
+ch\tbz\recipe\planner\service\RecipeService.class
+ch\tbz\recipe\planner\mapper\RecipeEntityMapperImpl.class
+ch\tbz\recipe\planner\entities\IngredientEntity.class
+ch\tbz\recipe\planner\controller\RecipeController.class
+ch\tbz\recipe\planner\domain\Unit.class
+ch\tbz\recipe\planner\repository\RecipeRepository.class

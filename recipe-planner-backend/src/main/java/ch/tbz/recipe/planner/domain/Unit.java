@@ -6,5 +6,4 @@ public enum Unit {
     KILOGRAMM,
     LITRE,
     DECILITRE
-
 }

@@ -12,5 +12,4 @@ import java.util.UUID;
 public interface RecipeRepository extends CrudRepository<RecipeEntity, Long> {
     Optional<RecipeEntity> findById(UUID id);
     List<RecipeEntity> findAll();
-
 }
