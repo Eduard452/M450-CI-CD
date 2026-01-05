@@ -21,17 +21,17 @@ jobs:
           cache: maven
 
       - name: Build & Test Backend
-        working-directory: recipe-planner-backend
+        working-directory: recipe-planner-frontend-and-backend
         run: mvn clean test
 
       - name: Upload Surefire Test Reports
         uses: actions/upload-artifact@v4
         with:
           name: surefire-test-report
-          path: recipe-planner-backend/target/surefire-reports
+          path: recipe-planner-frontend-and-backend/recipe-planner-backend/target/surefire-reports
 
       - name: Upload JaCoCo Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-coverage-report
-          path: recipe-planner-backend/target/site/jacoco
+          path: recipe-planner-frontend-and-backend/recipe-planner-backend/target/site/jacoco
